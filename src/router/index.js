@@ -2,14 +2,14 @@ import Vue from 'vue'
 import Router from 'vue-router'
 
 Vue.use(Router)
-const home=()=>import("../views/home/home")
-const category=()=>import("../views/category/category")
-const cart=()=>import("../views/cart/cart")
-const profile=()=>import("../views/profile/profile")
+const home=()=>import("views/home/home.vue")
+const category=()=>import("views/category/category.vue")
+const cart=()=>import("views/cart/cart.vue")
+const profile=()=>import("views/profile/profile.vue")
 
 const routes= [
     {
-      path:"",
+      path:"/",
       redirect:"/home"
     },
     {
