@@ -17,7 +17,6 @@ export default{
   bottom:0;
   left:0;
   right:0;
-  background:pink;
   margin:0 auto;
 }
 
