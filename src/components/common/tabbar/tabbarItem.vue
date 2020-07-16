@@ -48,6 +48,7 @@ export default {
   flex: 1;
   height: 49px;
   font-size: 14px;
+  text-align: center;
 }
 #bar .bar-item img {
   width: 24px;

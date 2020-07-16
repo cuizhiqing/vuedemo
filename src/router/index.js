@@ -6,6 +6,7 @@ const home=()=>import("views/home/home.vue")
 const category=()=>import("views/category/category.vue")
 const cart=()=>import("views/cart/cart.vue")
 const profile=()=>import("views/profile/profile.vue")
+const jx=()=>import("views/jx/jx.vue")
 
 const routes= [
     {
@@ -26,6 +27,14 @@ const routes= [
       component: category,
       meta: {
         title: "category页面"
+      }
+    },
+    {
+      path: '/jx',
+      name: 'jx',
+      component: jx,
+      meta: {
+        title: "jx页面"
       }
     },
     {

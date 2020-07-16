@@ -10,6 +10,11 @@
                            <img slot="item-icon-active"  src='~/assets/img/category_active.svg'>
                            <div slot="item-text" >分类</div>
                </tabbaritem>
+               <tabbaritem path1="/jx" iscolor="pink">
+                           <img slot="item-icon" src='~/assets/img/category.svg'>
+                           <img slot="item-icon-active"  src='~/assets/img/category_active.svg'>
+                           <div slot="item-text" >惊喜</div>
+               </tabbaritem>
                <tabbaritem  path1="/cart" iscolor="green">
                          <img slot="item-icon" src='~/assets/img/shopcart.svg'>
                          <img slot="item-icon-active"  src='~/assets/img/shopcart_active.svg'>
