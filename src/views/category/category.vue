@@ -7,41 +7,44 @@
       </li>
     </ul>-->
 
-    <div class="one">
-      <tabcontrol
-        :controlid="tabcontrolid"
-        :titlearr="jd_category_one"
-        @tabclick="tabcontrolclick"
-        ref="categorycontrol"
-      >
-        <!-- ref='categorycontrol'相当于对又定义了一个名字 -->
-        <div :class="{active:controlindex=='hot'}" @click="tabcontrolclick('hot')">
-          <span>热门推荐</span>
-          <span>0</span>
-        </div>
-      </tabcontrol>
-    </div>
-    <div class="two">
-      <div v-if="controlindex=='hot'">
-        <h1>热门商品</h1>
-        <dl v-if="shophistory.length">
-          <dt>
-            浏览记录
-            <el-button type="text" @click="rmHistory">清空</el-button>
-          </dt>
-          <dd></dd>
-        </dl>
+    <scroll class="one" ref="one" >
+      <!-- <div> -->
+        <tabcontrol
+          :controlid="tabcontrolid"
+          :titlearr="jd_category_one"
+          @tabclick="tabcontrolclick"
+          ref="categorycontrol"
+        >
+          <!-- ref='categorycontrol'相当于对又定义了一个名字 -->
+          <div :class="{active:controlindex=='hot'}" @click="tabcontrolclick('hot')">
+            <span>热门推荐</span>
+            <span>0</span>
+          </div>
+        </tabcontrol>
+      <!-- </div> -->
+    </scroll>
+    <scroll class="two" ref="two" :probeType="3" @parentscroll="conentscroll">
+      <div>
+        <div v-if="controlindex=='hot'">
+          <h1>热门商品</h1>
+          <dl v-if="shophistory.length">
+            <dt>
+              浏览记录
+              <el-button type="text" @click="rmHistory">清空</el-button>
+            </dt>
+            <dd></dd>
+          </dl>
 
-        <dl v-for="(item,key) in secmenulist" :key="key">
-          <dt>热门分类</dt>
-          <dd v-for="(item,key) in secmenulist" :key="key">
-            <img :src="path+item.c3_img" alt />
-            <span>{{item.c3_name}}</span>
-          </dd>
-        </dl>
-      </div>
-      <div v-if="controlindex!='hot'">
-        <dl v-for="(list,index) in secmenulist" :key="index">
+          <dl>
+            <dt>热门分类</dt>
+            <dd v-for="(item,key) in secmenulist" :key="key">
+              <img :src="path+item.c3_img" alt />
+              <span>{{item.c3_name}}</span>
+            </dd>
+          </dl>
+        </div>
+        <div v-if="controlindex!='hot'">
+          <dl v-for="(list,index) in secmenulist" :key="index">
           <dt>{{index}}</dt>
           <dd v-for="(item,key) in list" :key="key">
             <a :href="'/details/'+item">
@@ -49,19 +52,22 @@
               <span>{{item.c3_name}}</span>
             </a>
           </dd>
-        </dl>
+          </dl>
+        </div>
       </div>
-    </div>
+    </scroll>
   </div>
 </template>
 <script>
+// import BScroll from "better-scroll";
 import tabcontrol from "components/content/tabcontroll/tabcontrol";
+import scroll from 'components/content/scroll/scroll'
 // import homefeature from "./childcomp/homefeature";
 import {
   get_jd_category_one,
   get_jd_category_two,
   get_jd_category_three
-} from "network/home";
+} from "network/category";
 
 export default {
   name: "category",
@@ -74,14 +80,15 @@ export default {
       jd_category_two: [],
       jd_category_three: [],
       controlindex: "hot",
-      path: "http://106.12.85.17:8090/public/image/jd_category/",
+      path:"http://106.12.85.17:8090/public/image/jd_category/",
       secmenulist: null, //可能是数组也可能是对象
       shophistory: [1] //已经浏览的记录，在发生页面跳转后，在路由守卫中记录当前请求的数据，并在页面跳转前，存储到shophistory
     };
   },
   components: {
     // homefeature
-    tabcontrol
+    tabcontrol,
+    scroll
   },
   created() {
     // this.getfeature()
@@ -131,19 +138,20 @@ export default {
         // this.secmenulist = [...arr]; //循环赋值
       } else {
         this.secmenulist = {};
-        this.jd_category_two.forEach(twolist => {
+        this.jd_category_two.forEach(twolist=> {
           if (twolist.c1_id == index) {
             this.secmenulist[twolist.c2_name] = {};
-            this.jd_category_three.forEach(threelist => {
+            this.jd_category_three.forEach(threelist=> {
               if (threelist.c2_id == twolist.c2_id) {
                 this.secmenulist[twolist.c2_name][
                   threelist.c3_name
-                ] = threelist;
+                ] = threelist
               }
             });
           }
         });
       }
+
       console.log(this.secmenulist);
       // 传递进来的参数用于判断按钮是否被选中
       this.controlindex = index;
@@ -152,6 +160,7 @@ export default {
       this.$refs.categorycontrol.itemindex = index;
     },
     rmHistory() {
+      console.log(this.$confirm);
       let that = this;
       this.$confirm("是否删除", "提示", {
         confirmButtonText: "确定",
@@ -171,6 +180,9 @@ export default {
             message: "已取消删除"
           });
         });
+    },
+    conentscroll(position){
+console.log("被使用",position);
     },
     // 网络请求
     get_jd_category_one() {
@@ -192,6 +204,14 @@ export default {
         this.tabcontrolclick(this.controlindex);
       });
     }
+  },
+  mounted() {
+    // this.scroll = new BScroll(this.$refs.one, {
+    //   click: true
+    // });
+    // this.scroll = new BScroll(this.$refs.two, {
+    //   click: true
+    // });
   }
 };
 </script>
@@ -203,6 +223,8 @@ export default {
 .one {
   flex: 1;
   background: #ddd;
+  height: calc(100vh - 49px);
+  overflow: hidden;
 }
 
 .one li {
@@ -218,12 +240,16 @@ export default {
   .two {
     flex: 3;
     background: red;
+    height: calc(100vh - 49px);
+    overflow: hidden;
   }
 }
 @media screen and (min-width: 768px) {
   .two {
     flex: 6;
     background: green;
+    height: calc(100vh - 49px);
+    overflow: hidden;
   }
 }
 .active {

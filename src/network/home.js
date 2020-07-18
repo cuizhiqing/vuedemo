@@ -14,23 +14,12 @@ export function getfeature() {
                   }
          })
 }
-export function get_jd_category_one(){
+export function get_jd_category_max(page){
          return request({
-                  url: '/vuedemo/get_jd_category_one'
-         })
-}
-export function get_jd_category_two(){
-         return request({
-                  url: '/vuedemo/get_jd_category_two'
-         })
-}
-export function get_jd_category_three(){
-         return request({
-                  url: '/vuedemo/get_jd_category_three'
-         })
-}
-export function get_jd_category_max(){
-         return request({
-                  url: '/vuedemo/get_jd_category_max'
+                  url: '/vuedemo/get_jd_category_three',
+                  params:{
+                           page:page,
+                           // pagesize:500
+                  }
          })
 }

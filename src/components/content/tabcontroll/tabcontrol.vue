@@ -6,7 +6,6 @@
     <div v-for="item in titlearr" :key="item.c1_id" @click="itemclick(item.c1_id)" :class="{active:itemindex==item.c1_id}" >
         <span>{{item.c1_name}}</span>
         <slot name="subname">{{item.c1_id}}</slot>
-    
     </div>
   </div>
 </template>
@@ -44,9 +43,9 @@ export default {
                   //   在子组件中如果想使用父组件传递过来的事件，需要通过使用$emit
                   this.$emit('tabclick',index)
                   // $parent
-                 this.$parent.tabcontrolclick(index);
+                  console.log(this.$parent.$parent);
+                 this.$parent.$parent.tabcontrolclick(index);
                  this.itemindex=index
-                  console.log(index);
 
            }
   }
