@@ -18,7 +18,9 @@ export default {
 }
 .feature-item li {
   width: 20vw;
+  /* width: 100vw; */
   font-size: 12px;
+  float: left;
   margin: 5px 0;
 }
 .feature-item li a {
@@ -27,6 +29,8 @@ export default {
 }
 .feature-item li img {
   width: 60%;
+  /* width: 100%; */
+
   display: block;
   margin-left: 20%;
 }

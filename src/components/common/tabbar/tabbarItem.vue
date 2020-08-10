@@ -1,13 +1,16 @@
 <template>
-  <div class="bar-item" @click="itemclick">
+  <div class="bar-item" @click="itemclick" :style="activestyle"  style="position:relative;">
     <div v-if="!isactive">
       <slot name="item-icon"></slot>
     </div>
     <div v-else>
       <slot name="item-icon-active"></slot>
     </div>
-    <div :class="{fontcolor:isactive}" :style="isactive==true?{color:color2}:{color:'red'}">
+    <div>
       <slot name="item-text" ></slot>
+    </div>
+     <div v-if='index==3'>
+      <slot name="item-shopc" ></slot>
     </div>
   </div>
 </template>
@@ -18,27 +21,50 @@ export default {
     path1: {
       type: String
     },
-    iscolor:{
-             type:String,
-             default:"red"
+    index:{
+      type:Number,
+      default:0
+    },
+    // iscolor:{
+    //          type:String,
+    //          default:"red"
+    // },
+    // baccolor:{
+    //    type:String,
+    //          default:"pink"
+    // },
+    cstyle:{
+      type:Object,
+      default(){
+        return {
+          bgcolor:'transparent',
+          activebg:'transparent',
+          color:'black',
+          activetext:'red'
+        }
+      }
     }
   },
   data() {
     return {
-      color2:this.iscolor
+      // color2:this.iscolor,
+      // baccolor2:this.baccolor,
+
     };
   },
   computed: {
     isactive() {  
       return this.$route.path.indexOf(this.path1)!=-1;
     },
+    activestyle(){
+      return this.isactive?{color:this.cstyle.activetext,background:this.cstyle.activebg}:{color:this.cstyle.color,background:this.cstyle.bgcolor}
+    }
+
   },
   methods: {
     itemclick() {
-//       this.isactive = !this.isactive;
-
-      this.$router.replace(this.path1);
-      console.log(this.iscolor); //得到的是上一个页的路径
+      if(this.path1==this.$store.state.sknavigation)return
+      this.$router.push(this.path1); //得到的是上一个页的路径
     }
   }
 };
@@ -57,8 +83,8 @@ export default {
   margin-bottom: 2px;
   vertical-align: middle;
 }
-.fontcolor {
+/* .fontcolor {
   color: red;
-}
+} */
 </style>
 

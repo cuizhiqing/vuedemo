@@ -3,13 +3,13 @@
       <featureitem v-for="(item,index) in cfeature" :key="index">
         <li v-for="i in item" :key="i.id">
           <a :href="i.imghref">
-            <img :src="path+i.imgsrc">
+            <img :src="$store.state.path+'/feature/'+i.imgsrc">
             <span>{{i.Title}}</span>
           </a>
         </li>
       <li v-if="index==cfeature.length-1 && cfeature.length%10 !=0">
 <a href="">
-            <img :src="path+'20.png'">
+            <img :src="$store.state.path+'/feature/'+'20.png'">
             <span>全部</span>
           </a>
       </li>
@@ -30,12 +30,8 @@ export default {
   },
   data(){
     return {
-      path:"http://106.12.85.17:8090/public/image/feature/",
       iscopy:true
     }
-  },
-  mounted() {
-    console.log(this.cfeature);
   },
   components: {
     feature,

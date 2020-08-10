@@ -5,19 +5,32 @@
       <slot></slot>
     </div>
     <!-- 左右按钮，如果需要的时候，给插槽内放置左右按钮即可 -->
-    <div class="icator"  v-if="showicator && slidecount>1">
+    <div class="icator" v-if="showicator && slidecount>1">
       <slot name="icator"></slot>
     </div>
     <!-- 放小圆点，索引指示器 -->
     <div class="indexIctor" v-if="showiiactord && slidecount>1">
       <slot name="indicator">
-        <div v-for="(item,index) in slidecount" :key="index" class="round-item" :class="{active:index===currentindex-1}">
+        <div
+          v-for="(item,index) in slidecount"
+          :key="index"
+          class="round-item"
+          :class="{active:index===currentindex-1}"
+        ></div>
+      </slot>
+    </div>
 
-        </div>
+    <!-- 详情页右下角 -->
+    <div style="background:black;position:absolute;right:0;bottom:10px;color:white;" v-if='detright'>
+      <span>{{currentindex}}</span>/{{goodslen}}
+    </div>
+
+    <div>
+      <slot name="num">
+        <!--显示图片数量 1/6 -->
       </slot>
     </div>
   </div>
-  
 </template>
 <script>
 // 轮播图的实际操作事件，要在当前的rotation组件中创建
@@ -27,24 +40,32 @@ export default {
   props: {
     interval: {
       type: Number,
-      default: 3000 //轮播动画的时间，假设3秒一次
+      default: 3000, //轮播动画的时间，假设3秒一次
     },
     movebase: {
       type: Number,
-      default: 0.3 //移动基数
+      default: 0.3, //移动基数
     },
-    showiiactord:{
-      type:Boolean,
-      default:true
+    showiiactord: {
+      type: Boolean,
+      default: true,
     },
-     showicator:{
-      type:Boolean,
-      default:false
+    showicator: {
+      type: Boolean,
+      default: false,
     },
-    divid:{
-      type:String,
-      default:"divid"
-    }
+    detright: {
+      type: Boolean,
+      default: false,
+    },
+    divid: {
+      type: String,
+      default: "divid",
+    },
+    goodslen: {
+      type: Number,
+      default:0,
+    },
   },
   data() {
     return {
@@ -61,6 +82,7 @@ export default {
     };
   },
   mounted() {
+    console.log(this.$parent.$chilren)
     // 页面渲染结束挂载页面获取
     setTimeout(() => {
       this.handledom(this.divid);
@@ -70,10 +92,10 @@ export default {
   methods: {
     // 操作dom
     handledom(id) {
-      let divid=document.querySelector(`#${id}`)
-      divid.style.overflow='hidden';
-      divid.style.backgrounf='red';
-      divid.style.position='relative';
+      let divid = document.querySelector(`#${id}`);
+      divid.style.overflow = "hidden";
+      divid.style.backgrounf = "red";
+      divid.style.position = "relative";
       // 只能获取页面的第一个，组件复用的问题
       let rotationel = document.querySelector(`#${id} .ratation`);
       let slideel = rotationel.querySelectorAll(".slide");
@@ -184,27 +206,33 @@ export default {
 
       // 开启定时器
       this.starttimer();
-    }
-  }
+    },
+  },
 };
 </script>
 <style>
-/* #rotationbox {
-  overflow: hidden;
+#rotationbox {
+  width: 95%;
+  margin: 0 auto;
+  height: 20vh;
+  border-radius: 10px;
+  /* margin-top:-16vh ; */
+  /* overflow: hidden;
   background: red;
-  position: relative;
-} */
+  position: relative; */
+}
 .ratation {
+  height: 100%;
   display: flex;
 }
-.indexIctor{
+.indexIctor {
   position: absolute;
   width: 100%;
   justify-content: center;
-bottom: 20px;
-display: flex;
+  bottom: 20px;
+  display: flex;
 }
-.round-item{
+.round-item {
   width: 10px;
   height: 10px;
   border-radius: 5px;
@@ -214,7 +242,7 @@ display: flex;
   color: red;
   margin: 0 5px;
 }
-.round-item.active{
-  background:red;
+.round-item.active {
+  background: red;
 }
 </style>

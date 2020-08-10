@@ -2,6 +2,7 @@
   <div class="scroll" ref="scroll">
     <div class="content">
       <slot></slot>
+      
     </div>
   </div>
 </template>
@@ -18,21 +19,21 @@ export default {
   props: {
     probeType: {
       type: Number,
-      default: 0
+      default: 3
     },
     pullUpLoad: {
       type: Boolean,
       default: false
     }
   },
-  components: {},
-  created() {},
   mounted() {
     this.scroll = new BScroll(this.$refs.scroll, {
       click: true,
+      scrollX: true,
       probeType: this.probeType,
       pullUpLoad: this.pullUpLoad
     });
+
     if (this.probeType == 2 || this.probeType == 3) {
       this.scroll.on("scroll", position => {
         //       调用一下父组件中绑定的事件，并传递参数
@@ -42,16 +43,30 @@ export default {
     // 当父组件允许加兹安更多时，才能监听滚动条是否滚到页面底部
     if (this.pullUpLoad) {
       this.scroll.on("pullingUp", () => {
-        console.log("到页面底部了");
-          this.$emit("pullingUp");
+        this.$emit("pullingUp");
       });
     }
+    // this._registerHooks(["scroll", "scrollEnd"], (pos) => {
+    //   console.log(pos);
+    // });
   },
   methods: {
+    // 注意，在组件内定义地方法是，尽量不使用其他茶净重已经定义好的方法名，容易冲突
     //   定义跳转页面指定位置事件
-    scrollTo(x, y, time) {
-      this.scroll.scrollTo(x, y, time);
-    }
+    scrollTo1(x, y,time) {
+      this.scroll && this.scroll.scrollTo(x, y, time);
+    },
+    refreshscroll() {
+      this.scroll && this.scroll.refresh();
+    },
+    finishPullUp(){
+      this.scroll && this.scroll.finishPullUp()
+    },
+    // _registerHooks(hookNames, handler) {
+    //   hookNames.forEach(name => {
+    //     this.scroll.on(name, handler);
+    //   });
+    // }
   }
 };
 </script>

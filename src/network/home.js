@@ -8,7 +8,7 @@ export function getHomeBanner() {
 // 导出一个获取功能视图的访问
 export function getfeature() {
          return request({
-                  url: '/vuedemo/feature',
+                  url: '/vuedemo/jd_feature',
                   params:{
                            show:1
                   }

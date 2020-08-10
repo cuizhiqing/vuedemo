@@ -12,6 +12,23 @@ module.exports = {
 
 
                            },//别名        
+                  },
+                  // VUE_APP_BASE_API= /api
+                  // 对服务运行添加代理服务
+                  // baseUrl:'/',
+                  devServer: {
+                           proxy: {//代理
+                                    '/api':{
+                                             target: "http://pv.sohu.com",//接口的域名，注意这里是域名，不是完整的ip
+                                             changeOrigin: true,//如果是https接口，需要配置这个参数
+                                             ws: true,
+                                             pathRewrite: {//重写变量('/api')路径
+                                                      '^/api': ''
+                                             }
+                                    }
+                           }
                   }
+
+         
          }
 }

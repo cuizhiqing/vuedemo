@@ -2,7 +2,7 @@
   <rotation :interval="intime" :showiiactord='true' divid="rotationbox">
     <rotation-item v-for="(item,index) in cbanners" :key="index">
       <a :href="item.href">
-        <img :src="path+item.crs" alt />
+        <img :src="$store.state.path+'/banner/'+item.crs" alt />
       </a>
     </rotation-item>
   </rotation>
@@ -24,11 +24,6 @@ export default {
       type:Number,
       default:1000
     }
-  },
-  data() {
-    return {
-      path: "http://106.12.85.17:9091/public/image/banner/"
-    };
   },
   components: {
     Rotation,

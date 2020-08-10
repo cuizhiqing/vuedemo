@@ -4,7 +4,6 @@
     <slot>
 
     </slot>
-
   </div>
 </template>
 
@@ -21,6 +20,7 @@ export default {
          /* 不使用空间压缩，默认值是1，当父元素x轴方向空间不足时，子元素宽度之和大于父元素，可以按照flex-shrink分配的值，按比例缩小子元素，缩小的值是超出部分的值得计算值 */
 }
 .slide img{
+  height: 100%;
          width: 100%;
 }
 /* .slide {

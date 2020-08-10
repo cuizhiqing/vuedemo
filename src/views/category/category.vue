@@ -6,45 +6,84 @@
         <button>{{item.c1_name}}</button>
       </li>
     </ul>-->
+    <navbar class="home-nav-bar">
+      <div slot="left" @click="back">&lt;</div>
+      <!-- <div slot="left" @click="$router.go(-1)">&lt;</div> -->
 
-    <scroll class="one" ref="one" >
-      <!-- <div> -->
-        <tabcontrol
-          :controlid="tabcontrolid"
-          :titlearr="jd_category_one"
-          @tabclick="tabcontrolclick"
-          ref="categorycontrol"
-        >
-          <!-- ref='categorycontrol'相当于对又定义了一个名字 -->
-          <div :class="{active:controlindex=='hot'}" @click="tabcontrolclick('hot')">
-            <span>热门推荐</span>
-            <span>0</span>
-          </div>
-        </tabcontrol>
-      <!-- </div> -->
+      <div slot="center">
+        <i class="el-icon-search"></i>
+        <input type="search" name placeholder="衣服" @focus="tosearch" id />
+      </div>
+      <div slot="right">
+        <el-row>
+          <el-col>
+            <el-dropdown trigger="click">
+              <span class="el-icon-more"></span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item
+                  icon="el-icon-s-custom"
+                  class="fl"
+                  @click.native="itemclick('/home')"
+                >
+                  <span>首页</span>
+                </el-dropdown-item>
+                <el-dropdown-item
+                  icon="el-icon-search"
+                  class="fl"
+                  @click.native="itemclick('/category')"
+                >
+                  <span>分类搜索</span>
+                </el-dropdown-item>
+                <el-dropdown-item icon="el-icon-shopping-cart-1" class="fl">
+                  <span>购物车</span>
+                </el-dropdown-item>
+                <el-dropdown-item icon="el-icon-user" class="fl">
+                  <span>我的京东</span>
+                </el-dropdown-item>
+                <el-dropdown-item icon="el-icon-circle-check" class="fl">
+                  <span>浏览记录</span>
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </el-col>
+        </el-row>
+      </div>
+    </navbar>
+    <scroll class="one" ref="one">
+      <tabcontrol
+        :controlid="tabcontrolid"
+        :titlearr="jd_category_one"
+        @tabclick="tabcontrolclick"
+        ref="categorycontrol"
+      >
+        <!-- ref='categorycontrol'相当于对又定义了一个名字 -->
+        <div :class="{active:controlindex==0}" @click="tabcontrolclick(0)">
+          <span>热门推荐</span>
+        </div>
+      </tabcontrol>
     </scroll>
     <scroll class="two" ref="two" :probeType="3" @parentscroll="conentscroll">
-      <div>
-        <div v-if="controlindex=='hot'">
-          <h1>热门商品</h1>
-          <dl v-if="shophistory.length">
-            <dt>
-              浏览记录
-              <el-button type="text" @click="rmHistory">清空</el-button>
-            </dt>
-            <dd></dd>
-          </dl>
-
-          <dl>
-            <dt>热门分类</dt>
-            <dd v-for="(item,key) in secmenulist" :key="key">
-              <img :src="path+item.c3_img" alt />
-              <span>{{item.c3_name}}</span>
-            </dd>
-          </dl>
-        </div>
-        <div v-if="controlindex!='hot'">
-          <dl v-for="(list,index) in secmenulist" :key="index">
+      <!-- <div v-if="controlindex==0">
+        <dl v-if="shophistory.length">
+          <dt>
+            浏览记录
+            <el-button type="text" @click="rmHistory">清空</el-button>
+          </dt>
+          <dd></dd>
+        </dl>
+        <dl>
+          <dt>
+            热门分类
+            <a href="/phbhot" class="fr phb">排行榜 &gt;</a>
+          </dt>
+          <dd v-for="(item,key) in secmenulist" :key="key">
+            <img :src="path+item.c3_img" alt />
+            <span>{{item.c3_name}}</span>
+          </dd>
+        </dl>
+      </div>
+      <div v-if="controlindex!=0">
+        <dl v-for="(list,index) in secmenulist" :key="index">
           <dt>{{index}}</dt>
           <dd v-for="(item,key) in list" :key="key">
             <a :href="'/details/'+item">
@@ -52,21 +91,68 @@
               <span>{{item.c3_name}}</span>
             </a>
           </dd>
-          </dl>
-        </div>
+        </dl>
+      </div>-->
+
+      <div v-if="controlindex==0">
+        <dl v-if="shophistory.length">
+          <dt>
+            浏览记录
+            <el-button type="text"  @click="rmHistory">清空</el-button>
+          </dt>
+          <catrgoryitem
+            v-for="(item,key) in shophistory"
+            :key="key"
+            :item="item"
+            :bool="false"
+            @shoppingclick="shoppingclick"
+          ></catrgoryitem>
+        </dl>
+        <cateall>
+          <category1 :controlindex="controlindex">
+            <catrgoryitem
+              v-for="(item,key) in secmenulist"
+              :key="key"
+              :item="item"
+              :bool="true"
+              @shoppingclick="shoppingclick"
+            ></catrgoryitem>
+          </category1>
+        </cateall>
+      </div>
+      <div v-if="controlindex!==0">
+        <cateall>
+          <category1
+            v-for="(list,index) in secmenulist"
+            :key="index"
+            :index="index"
+            :controlindex="controlindex"
+          >
+            <catrgoryitem v-for="(item,key) in list" :key="key" :item="item"></catrgoryitem>
+          </category1>
+        </cateall>
       </div>
     </scroll>
+    <maintabbar></maintabbar>
   </div>
 </template>
 <script>
-// import BScroll from "better-scroll";
+import maintabbar from "components/content/maintabbar/maintabbar.vue";
+import navbar from "components/common/navbar/navbar.vue";
 import tabcontrol from "components/content/tabcontroll/tabcontrol";
-import scroll from 'components/content/scroll/scroll'
-// import homefeature from "./childcomp/homefeature";
+// import catetwogoodslist from "components/content/catetwogoodlist/catetwogoodslist";
+// import dtcate from "components/content/catetwogoodlist/dtcate";
+import cateall from "components/common/categroyall/cateall";
+import { debounce } from "common/utils";
+
+import category1 from "components/common/categroyall/category1";
+import catrgoryitem from "components/common/categroyall/categoryitem";
+import scroll from "components/content/scroll/scroll";
+// import homefeature from "./childcomp/catefeature";
 import {
   get_jd_category_one,
   get_jd_category_two,
-  get_jd_category_three
+  get_jd_category_three,
 } from "network/category";
 
 export default {
@@ -79,16 +165,22 @@ export default {
       jd_category_one: [],
       jd_category_two: [],
       jd_category_three: [],
-      controlindex: "hot",
-      path:"http://106.12.85.17:8090/public/image/jd_category/",
+      controlindex: 0,
       secmenulist: null, //可能是数组也可能是对象
-      shophistory: [1] //已经浏览的记录，在发生页面跳转后，在路由守卫中记录当前请求的数据，并在页面跳转前，存储到shophistory
+      shophistory: [], //已经浏览的记录，在发生页面跳转后，在路由守卫中记录当前请求的数据，并在页面跳转前，存储到shophistory
     };
   },
   components: {
     // homefeature
     tabcontrol,
-    scroll
+    scroll,
+    maintabbar,
+    navbar,
+    cateall,
+    category1,
+    catrgoryitem,
+    // catetwogoodslist,
+    // dtcate
   },
   created() {
     // this.getfeature()
@@ -97,36 +189,19 @@ export default {
     this.get_jd_category_three();
   },
   methods: {
-    // 获取功能视图的数据
-    // getfeature() {
-    //   getfeature().then(res => {
-    //     console.log(res);
-    //     let arr = res;
-    //     for (let i = 0; i < arr.length / 10; i++) {
-    //       this.feature.push([]);
-    //       console.log(i);
-    //       for (let j = 0; j < arr.length; j++) {
-    //         if (parseInt(j / 10) == i) {
-    //           this.feature[i].push(arr[j]);
-    //         }
-    //       }
-    //     }
-    //     console.log(this.feature);
-    //   });
-    // },
-    // 定义业务相关事件
+    // 定义点击左边业务相关事件
     tabcontrolclick(index) {
-      if (index == "hot") {
+      if (index == 0) {
         this.secmenulist = [];
         // 循环遍历表3取出ishot==1的值存到secmenulist
         // 本身返回一个新数组
         this.secmenulist = [
-          ...this.jd_category_three.filter(threelist => {
+          ...this.jd_category_three.filter((threelist) => {
             if (threelist.c3_ishot == 1) {
               return true; //条件成立存到新数组
             }
             return false; //不成立不存
-          })
+          }),
         ];
 
         // var arr = this.jd_category_three.filter(threelist => {
@@ -138,72 +213,83 @@ export default {
         // this.secmenulist = [...arr]; //循环赋值
       } else {
         this.secmenulist = {};
-        this.jd_category_two.forEach(twolist=> {
+        this.jd_category_two.forEach((twolist) => {
           if (twolist.c1_id == index) {
             this.secmenulist[twolist.c2_name] = {};
-            this.jd_category_three.forEach(threelist=> {
+            this.jd_category_three.forEach((threelist) => {
               if (threelist.c2_id == twolist.c2_id) {
                 this.secmenulist[twolist.c2_name][
                   threelist.c3_name
-                ] = threelist
+                ] = threelist;
               }
             });
           }
         });
       }
-
-      console.log(this.secmenulist);
       // 传递进来的参数用于判断按钮是否被选中
       this.controlindex = index;
-      console.log(index);
       // 回传数据给子组件/修改子组件的数据
       this.$refs.categorycontrol.itemindex = index;
+      console.log(this.$refs.one)
+     this.$refs.one.scrollTo1(0, -41*index, 300);
+
+    },
+    itemclick(path1) {
+      this.$router.replace(path1); //得到的是上一个页的路径
+    },
+    conentscroll(position) {
+      console.log("被使用", position);
+    },
+    // 网络请求
+    get_jd_category_one() {
+      get_jd_category_one().then((res) => {
+        if (res) this.jd_category_one.push(...res);
+      });
+    },
+    get_jd_category_two() {
+      get_jd_category_two().then((res) => {
+        if (res) this.jd_category_two.push(...res);
+      });
+    },
+    get_jd_category_three() {
+      get_jd_category_three().then((res) => {
+        if (res) this.jd_category_three.push(...res);
+        this.tabcontrolclick(this.controlindex);
+      });
+    },
+    back() {
+      this.$router.go(-1);
     },
     rmHistory() {
-      console.log(this.$confirm);
       let that = this;
       this.$confirm("是否删除", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "warning"
+        type: "warning",
       })
         .then(() => {
           that.shophistory = [];
           this.$message({
             type: "success",
-            message: "删除成功!"
+            message: "删除成功!",
           });
         })
         .catch(() => {
           this.$message({
             type: "info",
-            message: "已取消删除"
+            message: "已取消删除",
           });
         });
     },
-    conentscroll(position){
-console.log("被使用",position);
+    loadmore() {
+      this.$bus.$emit("goodsimageload");
     },
-    // 网络请求
-    get_jd_category_one() {
-      get_jd_category_one().then(res => {
-        console.log(res);
-        if (res) this.jd_category_one.push(...res);
-      });
+    tosearch() {
+      this.$router.push("/search");
     },
-    get_jd_category_two() {
-      get_jd_category_two().then(res => {
-        console.log(res);
-        if (res) this.jd_category_two.push(...res);
-      });
+    shoppingclick(shop, bool) {
+      if (bool) this.shophistory.push(shop);
     },
-    get_jd_category_three() {
-      get_jd_category_three().then(res => {
-        console.log(res);
-        if (res) this.jd_category_three.push(...res);
-        this.tabcontrolclick(this.controlindex);
-      });
-    }
   },
   mounted() {
     // this.scroll = new BScroll(this.$refs.one, {
@@ -212,35 +298,97 @@ console.log("被使用",position);
     // this.scroll = new BScroll(this.$refs.two, {
     //   click: true
     // });
-  }
+    const refresh = debounce(this.$refs.two.refreshscroll, 1000);
+    this.$bus.$on("goodsimageload1", () => {
+      // 当图片加载完成，在goodlistitem中通过$bus总线执行当前方法，然后对bscroll进行重新计算高度
+      // this.$refs.two.refresh();
+      refresh();
+    });
+  },
 };
 </script>
 <style scoped>
 #category {
-  display: flex;
+  /* display: flex; */
   font-size: 12px;
 }
-.one {
-  flex: 1;
+i {
+  width: 6%;
+  line-height: 30px;
   background: #ddd;
-  height: calc(100vh - 49px);
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  font-size: 14px;
+  padding-left: 4%;
+}
+.el-button {
+  font-size: 16px;
+  width: 10%;
+  color: black;
+  border-left: 2px solid rgb(202, 199, 199);
+  margin-top: 12px;
+  padding: 0;
+}
+.el-button--text:focus,
+.el-button--text:hover {
+  color: black;
+  border-left: 2px solid rgb(202, 199, 199);
+  background-color: white;
+}
+.el-dropdown-menu {
+  background: rgba(0, 0, 0, 0.9);
+  width: 20vh;
+}
+.el-dropdown-menu__item {
+  color: white;
+}
+.el-dropdown-menu__item i {
+  margin-right: 10px;
+}
+.el-popper[x-placement^="bottom"] .popper__arrow::after {
+  border-bottom-color: rgba(0, 0, 0, 0.9);
+}
+input[type="search"] {
+  width: 90%;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  height: 30px;
+  background: #ddd;
+  border: none;
+  margin-left: -1px;
+}
+input[type="search"]:focus {
+  outline: none;
+}
+.el-icon-search:before {
+  padding: 0 5px 0 auto;
+}
+.one {
+  /* flex: 1; */
+  background: #ddd;
+  height: calc(100vh - 98px);
   overflow: hidden;
+  float: left;
+  width: 20%;
 }
 
 .one li {
   width: 100%;
 }
-.one button {
+.navbar {
+  border-bottom: 1px solid rgb(168, 167, 167);
+}
+/* .one button {
   width: 100%;
   height: 40px;
   border: none;
   outline: none;
-}
+} */
 @media screen and (max-width: 768px) {
   .two {
     flex: 3;
-    background: red;
-    height: calc(100vh - 49px);
+    background: white;
+    height: calc(100vh - 98px);
     overflow: hidden;
   }
 }
@@ -248,13 +396,17 @@ console.log("被使用",position);
   .two {
     flex: 6;
     background: green;
-    height: calc(100vh - 49px);
+    height: calc(100vh - 98px);
     overflow: hidden;
   }
 }
 .active {
   color: red;
   background: #fff;
+}
+.phb {
+  color: #ddd;
+  font-size: 12px;
 }
 .two dl {
   display: flex;
