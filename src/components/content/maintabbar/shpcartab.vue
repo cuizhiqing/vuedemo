@@ -1,18 +1,31 @@
 <template>
   <div id="shopcartab">
     <div class="shopcaritem">
-      <span class="gou" :class="ghgh==true ? 'gouactive':''" @click="gougou($event)"></span>
-      全选{{ghgh}}
+      <!-- <span class="gou" :class="ghgh==true ? 'gouactive':''" @click="gougou($event)"></span> -->
+      <el-checkbox @change="gougou" v-model="checkAll">全选</el-checkbox>
     </div>
+
     <div class="shopcaritem" style="text-align:right;">
-      <div>
+      <div v-if="bji">
         总计:
         <span>{{this.$store.state.totalpayment}}</span>
       </div>
+
+      <div v-if="!bji">移至收藏</div>
     </div>
-    <div class="shopcaritem">
-      <span class="js">去结算({{$store.state.shopcargoodsnum}}件)</span>
+    <div class="shopcaritem" @click="$emit('payment')" v-if="bji">
+      <!-- <button class="js" disabled>去结算({{$store.state.shopcargoodsnum}}件)</button> -->
+      <!-- <input class="js" type="button" :disabled='paymentgoods.length==0' :value="'去结算('+$store.state.shopcargoodsnum+'件)'" :class="{disabled:paymentgoods.length==0}"> -->
+      <input
+        class="js"
+        type="button"
+        :disabled="$store.state.shopcargoodsnum==0"
+        :value="'去结算('+$store.state.shopcargoodsnum+'件)'"
+        :class="{disabled:$store.state.shopcargoodsnum==0}"
+      />
     </div>
+
+    <div class="shopcaritem" v-if="!bji">删除</div>
   </div>
 </template>
 
@@ -20,31 +33,37 @@
 export default {
   name: "shopcartab",
   props: {
-    ee: {
+    bji: {
       type: Boolean,
-      default: false,
+      default: true,
     },
   },
+  data() {
+    return {
+      checkAll: this.$store.state.checkedCities.length==2,
+    };
+  },
   components: {},
-  created() {},
+  created() {
+    console.log(this.paymentgoods);
+  },
   activated() {},
   deactivated() {},
   mounted() {},
   computed: {
-    ghgh() {
-      var fo = 0;
-      for (var key in this.$store.state.shopcart) {
-        for (var f = 0; f < this.$store.state.shopcart[key].length; f++) {
-          if (this.$store.state.shopcart[key][f].ischeck == "1") fo++;
-        }
-      }
-      return fo == this.$store.state.shopcartlength;
+    paymentgoods() {
+      return this.$store.state.paymentgoods;
     },
   },
   methods: {
-    gougou() {
-      this.$emit("hhh",this.ghgh);
-      this.$emit('totalmoney')
+    gougou(val) {
+      this.$emit("hhh", val);
+      this.$emit("totalmoney");
+    },
+    goorder() {
+      // this.$router.push('/')
+      // this.$emit("confirm_goods");
+      // this.$emit('payment');
     },
   },
 };
@@ -53,7 +72,7 @@ export default {
 #shopcartab {
   display: flex;
   position: fixed;
-  bottom: 0;
+  bottom: 50px;
   left: 0;
   right: 0;
   background: white;
@@ -61,14 +80,20 @@ export default {
     line-height: 49px;
     font-size: 14px;
     text-align: center;
+    overflow: hidden;
     &:not(:first-child) {
       flex: 1;
     }
     .js {
-      padding: 8px 10px;
+      padding: 8px 0;
+      width: 80%;
+      text-align: center;
       background: red;
       border-radius: 20px;
       color: white;
+    }
+    input.disabled {
+      background: rgba(255, 0, 0, 0.5);
     }
   }
 }

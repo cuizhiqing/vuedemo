@@ -1,7 +1,7 @@
 import axios from 'axios'
 export function request(config) {
         //  axios.defaults.headers.post['Content-type']='application/x-www-form-urlencode'
-         axios.defaults.timeout=5000
+        //  axios.defaults.timeout=5000
          // axios.defaults.baseURL="http://106.12.85.17:8090"
          const instance = new axios.create({
                   baseURL: "http://106.12.85.17:8090",
@@ -65,11 +65,12 @@ export function requestpost(config) {
          })
          // 请求拦截
          instance.interceptors.request.use(config => {
-                  return config
+                return config
          })
          // 响应拦截
          instance.interceptors.response.use(res => {
                   return res.data
+                  
          }, err => {
                   console.log(err)
          })

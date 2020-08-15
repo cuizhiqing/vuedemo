@@ -22,27 +22,44 @@
           </el-dropdown>
         </div>
       </navbar>
-
       <div class="cartcont">
-        <div class="cartadd">
+        <div class="cartadd" v-if="this.$store.state.shopcartlength">
           <div>{{$store.state.shopingaddress}}</div>|
-          <div style="flex:2;">编辑商品</div>
+          <div style="flex:2;" @click="bji=!bji" v-if="bji">编辑商品</div>
+          <div style="flex:2;" @click="bji=!bji" v-if="!bji">完成</div>
         </div>
-        <div>
+
+        <div v-if="!this.$store.state.userinfo.id">
           登录后可同步账户购物车中的商品
           <button @click="goprofile">登录</button>
         </div>
+
+        <div>
+          <img src="../../assets/img/shop.png" v-if="!this.$store.state.shopcartlength" alt />
+          <div v-if="!this.$store.state.userinfo.id">登录后可同步账户购物车中的商品</div>
+          <div
+            v-if="this.$store.state.userinfo.id && !this.$store.state.shopcartlength"
+          >购物车空空如也，去逛逛吧</div>
+        </div>
       </div>
-      {{this.$store.state.shopcartlength}}
-      <div
-        class="shopcarlist"
+
+      <cartgoods
         v-for="(item,key,index) in $store.state.shopcart"
         :key="index"
-        ref="shopcarlist"
+        :shopname="key"
+        :index="index"
+        ref="cart_goods"
+        @totalmoney="totalmoney"
+        @ischeckshopall="is_check_shop_all"
+      ></cartgoods>
+      <!-- <div
+       
       >
         <div class="shopname">
           <div style="text-align:left;padding:10px 0;">
             <span class="gou" @click="shopgou(index,key)"></span>
+
+            <el-checkbox @click.native="shopgou(index,key)"  v-model='list.ischeck'></el-checkbox>
             {{key}}
           </div>
         </div>
@@ -53,6 +70,8 @@
               :class="list.ischeck=='1' ? 'gouactive':''"
               @click="checkobj(list,item)"
             ></span>
+
+            <el-checkbox @click="checkobj(list,item)" :checked="list.ischeck=='1'" v-model='list.ischeck'></el-checkbox>
           </div>
           <div class="listimg">
             <img :src="$store.state.path+'/goods/'+list.img_cover" alt />
@@ -61,7 +80,9 @@
             <div>{{list.goods_name}}</div>
             <div class="norm-box" v-on:click.stop="selectnorm(list)" style="font-size:12px;">
               <p class="norm">
-                <em style="width: 90px;display: inline-block;white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">{{list.goods_name}}</em>
+                <em
+                  style="width: 90px;display: inline-block;white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                >{{list.goods_name}}</em>
                 <span>
                   ,选服务
                   <i class="el-icon-arrow-down"></i>
@@ -85,38 +106,63 @@
             <div style="text-align:right;">删除</div>
           </div>
         </div>
-      </div>
+      </div>-->
     </scroll>
-    <shopcartab @hhh="hhh" :ee="ee" @totalmoney="totalmoney"></shopcartab>
+
+    <shopcartab
+      v-if="this.$store.state.shopcartlength"
+      @hhh="hhh"
+      @totalmoney="totalmoney"
+      :bji="bji"
+      ref="tabBar"
+      @confirm_goods="confirm_goods"
+      @payment="payment"
+    >{{this.$store.state.shopcartlength}}</shopcartab>
   </div>
 </template>
 <script>
+import cartgoods from "./childcomp/cartgoods";
 import navbar from "components/common/navbar/navbar";
 import shopcartab from "components/content/maintabbar/shpcartab";
 import scroll from "components/content/scroll/scroll";
+import { updatashopcart } from "network/shopcar";
 export default {
   name: "cart",
   components: {
     navbar,
     shopcartab,
     scroll,
+    cartgoods,
   },
   data() {
     return {
-      ee: false,
+      // ee: false,
+      bji: true,
+      paymentdataarr: [],
     };
   },
   //   如果用户存在，则网络请求getshopcat数据
   created() {
-    if (this.$store.state.userinfo && this.$store.state.shopcartlength == 0) {
+    if (
+      this.$store.state.userinfo.id &&
+      this.$store.state.shopcartlength == 0
+    ) {
       this.getshopcart();
-      this.totalmoney();
+      // this.totalmoney();
     }
   },
-  computed: {},
+  beforeRouteLeave(to, from, next) {
+    this.updatashopcart();
+    next();
+  },
+  computed: {
+    shopCartNameArr() {
+      return this.$store.state.shopCartNameArr;
+    },
+  },
   methods: {
-    selectnorm(data){
-      console.log(data)
+    selectnorm(data) {
+      console.log(data);
     },
     pushrouper(path) {
       this.$router.push(path);
@@ -125,33 +171,16 @@ export default {
       this.$router.push("/profile");
     },
     getshopcart() {
-      this.$store.dispatch("getshopcart", this.$store.state.userinfo);
+      this.$store.dispatch("getshopcart", this.$store.state.userinfo.id);
     },
-    checkobj(list, item) {
-      let e = e || event;
-      list.ischeck = list.ischeck == "1" ? "0" : "1";
-      var dd = 0,
-        io;
-      item.forEach((list) => {
-        if (list.ischeck == "1") dd++;
-      });
-      if (dd == item.length) {
-        io = "gou gouactive";
-      } else {
-        io = "gou";
-      }
-      e.target.parentNode.parentNode.parentNode.querySelector(
-        ".shopname .gou"
-      ).className = io;
-      this.totalmoney();
-    },
+    // -----------------------------------
     totalmoney() {
       this.$store.state.totalpayment = 0;
       this.$store.state.shopcargoodsnum = 0;
-      console.log(this.$store.state.shopcart);
       for (var key in this.$store.state.shopcart) {
         for (var f = 0; f < this.$store.state.shopcart[key].length; f++) {
           if (this.$store.state.shopcart[key][f].ischeck == "1") {
+            console.log(this.$store.state.shopcart);
             this.$store.state.totalpayment +=
               this.$store.state.shopcart[key][f].money_now *
               this.$store.state.shopcart[key][f].num;
@@ -162,76 +191,119 @@ export default {
         }
       }
     },
-    shopgou(index, key) {
-      let e = e || event;
-
-    
-      // let box = this.$refs.shopcarlist;
-      // let btnall = box[index].querySelectorAll(".gou");
-     
-      var obj = {};
-      obj =
-        e.target.className == "gou"
-          ? { tt: 1, cname: "gouactive gou" }
-          : { tt: 0, cname: "gou" };
-      e.target.className = obj.cname;
-      var fo = 0;
-      this.$store.state.shopcart[key].forEach((item) => {
-        item.ischeck = obj.tt;
-        if (item.ischeck == "0") fo++;
-      });
-      if (fo.length == this.$store.state.shopcartlength) {
-        this.ee = true;
-      } else {
-        this.ee = false;
+    updatashopcart() {
+      let shopcart = { ...this.$store.state.shopcart };
+      let shopcarthistory = { ...this.$store.state.shopcarthistory };
+      for (let i in shopcart) {
+        for (let j = 0; j < shopcart[i].length; j++) {
+          if (
+            shopcart[i][j].ischeck != shopcarthistory[i][j].ischeck ||
+            shopcart[i][j].num != shopcarthistory[i][j].num ||
+            shopcart[i][j].norm != shopcarthistory[i][j].norm
+          ) {
+            let data = {};
+            data.id = shopcart[i][j].id;
+            data.num = shopcart[i][j].num;
+            data.ischeck = shopcart[i][j].ischeck;
+            data.norm = shopcart[i][j].norm;
+            console.log(data);
+            updatashopcart(data).then((res) => {
+              console.log(res);
+            });
+          }
+        }
       }
-      this.totalmoney();
-      // let temp = -1;
-      // if (e.target.checked) {
-      //   temp = 1;
-      // }
-      // for (let i = 0; i < btnall.length; i++) {
-      //   // 如果当前商品复选框的checked为true，并且店铺复选框也为true，则跳过当前循环，执行下一次循环，因为如果当前商品是选中的状态，那么支付总价是不需要增加价钱的
-      //   if (btnall[i].checked && e.target.checked) {
-      //     continue;
-      //   }
-      //   this.$store.state.totalpayment +=
-      //     this.goods[i].money_now * this.goods[i].num * temp;
-      //   this.$store.state.totalnum += this.goods[i].num * temp;
-      //   btnall[i].checked = e.target.checked;
-      //   this.goods[i].ischeck = Number(e.target.checked).toString();
-      // }
+      console.log(this.paymentdataarr);
     },
-    hhh(ee) {
-      var ff = !ee ? { tt: "1", ll: "gou gouactive" } : { tt: "0", ll: "gou" };
-      this.$refs.shopcarlist.forEach((item) => {
-        item.querySelectorAll(".shopname").forEach((list) => {
-          list.querySelector(".gou").className = ff.ll;
+    hhh(checked) {
+      console.log(this.indexArr);
+      console.log(this.$store.state.checkedCities);
+      console.log(this.shopCartNameArr);
+      this.$store.state.checkedCities = checked ? this.shopCartNameArr : [];
+      this.$refs.cart_goods.forEach((item) => {
+        let label = item.$el.querySelectorAll(".el-checkbox__label");
+        var aaa = [];
+        label.forEach((text) => {
+          aaa.push(text.innerText);
         });
+        if (checked) {
+          item.indexArr = aaa;
+        } else {
+          item.indexArr = [];
+        }
       });
       for (var key in this.$store.state.shopcart) {
         for (var f = 0; f < this.$store.state.shopcart[key].length; f++) {
-          this.$store.state.shopcart[key][f].ischeck = ff.tt;
+          this.$store.state.shopcart[key][f].ischeck = Number(
+            checked
+          ).toString();
         }
       }
-    },
-    jj(list, val) {
-      switch (val) {
-        case "-":
-          if (list.num > 1) {
-            list.num = list.num * 1 - 1;
-          }
-          console.log(list);
-          break;
-        case "+":
-          list.num = list.num * 1 + 1;
-          break;
-      }
+
       this.totalmoney();
     },
-    todetails(path){
-      this.$router.push(path)
-    }
+
+    //是否是全选商品
+    is_check_shop_all() {
+      let cart_goods = this.$refs.cart_goods;
+      let tabbar = this.$refs.tabBar;
+      let allCheck = tabbar.$el.querySelector("input[type=checkbox]");
+      let temp = 0;
+      cart_goods.forEach((item) => {
+        let shopNameCheck = item.$el.querySelector(
+          ".shopname input[type=checkbox]"
+        );
+        if (shopNameCheck.checked) {
+          temp++;
+        }
+      });
+      if (temp == cart_goods.length) {
+        alert("3");
+        allCheck.checked = true;
+      } else {
+        allCheck.checked = false;
+      }
+    },
+    confirm_goods() {
+      // 找到购物车内需要做支付的商品是哪一个
+      // 直接查找shopcart的ischeck=1，添加到data里边传递到confirm_order
+      // let data = ["整个商品数据", "整个商品数据", "整个商品数据"];
+      // this.$router.push("/confirmorder/" + data);
+      let data = {};
+      for (var key in this.$store.state.shopcart) {
+        this.$store.state.shopcart[key].forEach((item) => {
+          if (item.ischeck == 1) {
+            if (data[key]) {
+              data[key].push(item);
+            } else {
+              data[key] = [item];
+            }
+          }
+        });
+      }
+
+      let flag = true;
+      for (let i in data) {
+        i;
+        flag = false;
+        break;
+      }
+
+      if (flag) return;
+      data = JSON.stringify(data);
+      this.$router.push("/confirmorder/" + data);
+    },
+    payment() {
+      let arr = [];
+      for (let i in this.$store.state.shopcart) {
+        this.$store.state.shopcart[i].forEach((item) => {
+          if (item.ischeck == "1") {
+            arr.push(item);
+          }
+        });
+      }
+      this.$router.push("/confirmorder/" + JSON.stringify(arr));
+    },
   },
 };
 </script>
@@ -263,66 +335,34 @@ export default {
       }
     }
   }
-  .shopcarlist {
-    padding: 0 15px 0 10px;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    .shopcardet {
-      padding: 10px 0 10px 5px;
-      display: flex;
-      flex-wrap: wrap;
-      &:not(:last-child) {
-        border-bottom: 1px solid #ddd;
-      }
-      > div {
-        float: left;
-      }
-      > div:nth-child(3) {
-        flex: 1;
-      }
-      .listimg {
-        // flex:2;
-        width: 86px;
-        height: 86px;
-        img {
-          width: 100%;
-          height: 100%;
-        }
-      }
-      .cardet {
-        > div:nth-child(3) {
-          overflow: hidden;
-          span {
-            float: left;
-          }
-          > div {
-            float: right;
-          }
-          strong {
-            width: 16px;
-            height: 16px;
-            text-align: center;
-            :nth-child(2) {
-              padding: 0 3px;
-            }
-          }
-        }
-      }
-    }
-    .gou {
-      margin-top: 100%;
-      margin-left: 0;
-    }
-    .shopname .gou {
-      margin-top: 0;
-    }
+  .cartscroll {
+    width: 100%;
+    height: calc(100vh - 100px);
+    overflow: hidden;
+    float: left;
   }
 }
 
-.cartscroll {
-  height: calc(100vh - 49px);
-  overflow: hidden;
-  float: left;
+// ----------------------------------
+.el-checkbox__input.is-focus {
+  .el-checkbox__inner {
+    border-color: #dcdfe6;
+  }
+}
+.el-checkbox__input.is-checked {
+  .el-checkbox__inner {
+    background-color: red;
+    border-color: red;
+  }
+}
+.el-checkbox__inner {
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  &:after {
+    top: 4px;
+    left: 7px;
+  }
 }
 </style>
 

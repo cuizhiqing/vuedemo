@@ -116,7 +116,7 @@ export default {
     //   ).cname;
     //   console.log(res.slice(res.indexOf("=") + 1, res.length - 1));
     // });
-    this.getshopcar(this.$store.state.userinfo);
+    this.getshopcar(this.$store.state.userinfo.id);
   },
   activated() {
     // 在组件激活的时候，调整滚动条的位置

@@ -8,6 +8,8 @@ const home = () => import("views/home/Home.vue")
 const category = () => import("views/category/category.vue")
 const cart = () => import("views/cart/cart.vue")
 const profile = () => import("views/profile/profile.vue")
+const login = () => import("views/login/login.vue")
+
 const jxindex = () => import("views/jx/jxindex.vue")
 // const register = () => import("views/register/register.vue")\
 const phbhot = () => import('views/phb/phbhot.vue')
@@ -18,6 +20,10 @@ const search = () => import("views/search/search.vue")
 const jxcategroy = () => import("views/jx/jxcategroy.vue")
 const jxvlog = () => import("views/jx/jxvlog.vue")
 const jxmyself = () => import("views/jx/jxmyself.vue")
+const order = () => import("views/order/order.vue")
+const confirmorder = () => import("views/order/confirmorder.vue")
+const pay = () => import("views/order/payment.vue")
+const address = () => import("views/address/address.vue")
 
 
 const routes = [
@@ -98,6 +104,14 @@ const routes = [
     }
   },
   {
+    path: '/login',
+    name: 'login',
+    component: login,
+    meta: {
+      title: "login页面"
+    }
+  },
+  {
     path: '/jxindex',
     name: 'jxindex',
     component: jxindex,
@@ -132,6 +146,38 @@ const routes = [
       },
     ]
   },
+  {
+    path: '/order',
+    name: 'order',
+    component: order,
+    meta: {
+      title: "order页面"
+    }
+  },
+  {
+    path: '/pay/:orderid',
+    name: 'pay',
+    component: pay,
+    meta: {
+      title: "pay页面"
+    }
+  },
+  {
+    path: '/confirmorder/:shop',
+    name: 'confirmorder',
+    component: confirmorder,
+    meta: {
+      title: "confirmorder页面"
+    }
+  },
+  {
+    path: '/address',
+    name: 'address',
+    component: address,
+    meta: {
+      title: "address页面"
+    }
+  },
 ]
 const routers = new Router({
   mode: "history",
@@ -139,7 +185,7 @@ const routers = new Router({
   linkActiveClass: "active",
 })
 routers.beforeEach((to, from, next) => {
-  document.title = to.matched[0].meta.title;
+  // document.title = to.matched[0].meta.title;
   // 每次路由在执行的时候，记录一下进入页面的路由地址，后期用于判断tabbar被重复点击
   store.state.sknavigation = to.path
   if (to.path == from.path) return
@@ -148,7 +194,7 @@ routers.beforeEach((to, from, next) => {
   for (let item in store.state.tabbar) {
     store.state.tabbar[item] = false
   }
-  if (to.path == '/home' || to.path == '/category') {
+  if (to.path == '/home' || to.path == '/category'|| to.path == '/login'|| to.path == '/cart') {
     store.state.tabbar['is_jd_tabbar'] = true
     // store.state.tabbar.is_jd_tabbar=true
   } else if (to.path.lastIndexOf('/jx') != -1) {
